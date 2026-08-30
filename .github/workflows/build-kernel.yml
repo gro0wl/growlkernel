@@ -34,8 +34,7 @@ jobs:
           export LLVM=0
           make O=out ARCH=$ARCH $KERNEL_DEFCONFIG
           make -j"$(nproc)" O=out ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE \
-            Image.gz dtbs modules
-          make O=out ARCH=$ARCH INSTALL_MOD_PATH="$PWD/modules" modules_install
+            Image.gz dtbs
       - name: Assemble AnyKernel3 ZIP
         run: |
           set -eux
@@ -45,7 +44,6 @@ jobs:
             cat out/arch/arm64/boot/Image.gz out/arch/arm64/boot/dts/mediatek/mt6768*.dtb > package/Image.gz-dtb
           find out/arch/arm64/boot/dts -name '*.dtb' -print0 | xargs -0 cat > package/dtb
           if [ -f out/arch/arm64/boot/dtbo.img ]; then cp out/arch/arm64/boot/dtbo.img package/dtbo.img; fi
-          if [ -d modules/lib/modules ]; then cp -a modules/lib/modules package/modules/system/lib/; fi
           printf 'growlkernel selene arm64\n' > package/banner
           (cd package && zip -r9 "../growlkernel-${{ matrix.arch }}-${GITHUB_RUN_NUMBER}.zip" .)
       - name: Create GitHub release (one release per architecture)
