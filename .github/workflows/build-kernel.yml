@@ -39,7 +39,8 @@ jobs:
           export OBJCOPY=aarch64-linux-gnu-objcopy
           export OBJDUMP=aarch64-linux-gnu-objdump
           export STRIP=aarch64-linux-gnu-strip
-          make O=out ARCH=$ARCH $KERNEL_DEFCONFIG
+          make O=out ARCH=$ARCH stock_defconfig
+          scripts/kconfig/merge_config.sh -m -O out out/.config arch/arm64/configs/$KERNEL_DEFCONFIG
           sed -i "s/^CONFIG_CC_STACKPROTECTOR_STRONG=y/# CONFIG_CC_STACKPROTECTOR_STRONG is not set/" out/.config
           sed -i -e "s/^CONFIG_LTO_CLANG=y/# CONFIG_LTO_CLANG is not set/" -e "s/^CONFIG_LTO_CLANG_THIN=y/# CONFIG_LTO_CLANG_THIN is not set/" out/.config
           sed -i "s/cortex-a75\.cortex-a75/cortex-a75/g" out/.config
