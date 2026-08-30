@@ -16,7 +16,7 @@ on:
       ksu_ref:
         description: backslashxx/KernelSU tag or commit
         required: true
-        default: v3.3.0
+        default: latest
         type: string
   push:
     branches:
@@ -40,7 +40,7 @@ jobs:
       SUBARCH: arm64
       KERNEL_DEFCONFIG: ${{ inputs.defconfig || 'selene_defconfig' }}
       BUILD_VERSION: ${{ inputs.version || 'saisei' }}
-      KSU_REF: ${{ inputs.ksu_ref || 'v3.3.0' }}
+      KSU_REF: ${{ inputs.ksu_ref || 'latest' }}
       CROSS_COMPILE: aarch64-linux-gnu-
       CROSS_COMPILE_COMPAT: arm-linux-gnueabihf-
 
@@ -62,9 +62,12 @@ jobs:
       - name: Integrate KernelSU for legacy kernels
         run: |
           set -euxo pipefail
-          curl -LSs \
-            "https://raw.githubusercontent.com/backslashxx/KernelSU/master/kernel/setup.sh" \
-            | bash -s "$KSU_REF"
+          setup_url="https://raw.githubusercontent.com/backslashxx/KernelSU/master/kernel/setup.sh"
+          if [ "$KSU_REF" = "latest" ]; then
+            curl -LSs "$setup_url" | bash -
+          else
+            curl -LSs "$setup_url" | bash -s "$KSU_REF"
+          fi
 
           test -L drivers/kernelsu
           test -f KernelSU/kernel/Kconfig
