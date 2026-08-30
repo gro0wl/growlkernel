@@ -46,7 +46,7 @@ jobs:
           scripts/config --file out/.config --set-str MICROTRUST_TEE_VERSION 300
           sed -i "s/cortex-a75\.cortex-a75/cortex-a75/g" out/.config
           yes "" | make O=out ARCH=$ARCH olddefconfig
-          make -j"$(nproc)" O=out ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE LD=$LD KCFLAGS="-Wno-error=misleading-indentation -Wno-error=sizeof-pointer-memaccess" \
+          make -j"$(nproc)" O=out ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE LD=$LD KCFLAGS="-Wno-error" \
             Image.gz dtbs
       - name: Assemble AnyKernel3 ZIP
         run: |
