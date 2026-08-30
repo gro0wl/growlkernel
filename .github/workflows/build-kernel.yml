@@ -41,6 +41,7 @@ jobs:
           export STRIP=aarch64-linux-gnu-strip
           make O=out ARCH=$ARCH $KERNEL_DEFCONFIG
           sed -i "s/^CONFIG_CC_STACKPROTECTOR_STRONG=y/# CONFIG_CC_STACKPROTECTOR_STRONG is not set/" out/.config
+          sed -i -e "s/^CONFIG_LTO_CLANG=y/# CONFIG_LTO_CLANG is not set/" -e "s/^CONFIG_LTO_CLANG_THIN=y/# CONFIG_LTO_CLANG_THIN is not set/" out/.config
           sed -i "s/cortex-a75\.cortex-a75/cortex-a75/g" out/.config
           make -j"$(nproc)" O=out ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE LD=$LD \
             Image.gz dtbs
