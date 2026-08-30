@@ -40,6 +40,7 @@ jobs:
           export OBJDUMP=aarch64-linux-gnu-objdump
           export STRIP=aarch64-linux-gnu-strip
           make O=out ARCH=$ARCH $KERNEL_DEFCONFIG
+          sed -i "s/^CONFIG_CC_STACKPROTECTOR_STRONG=y/# CONFIG_CC_STACKPROTECTOR_STRONG is not set/" out/.config
           make -j"$(nproc)" O=out ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE LD=$LD \
             Image.gz dtbs
       - name: Assemble AnyKernel3 ZIP
