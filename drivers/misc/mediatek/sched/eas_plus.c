@@ -39,8 +39,13 @@ static char module_name[128];
 /* A lock for scheduling switcher */
 DEFINE_SPINLOCK(sched_switch_lock);
 
-#if defined(CONFIG_SCHED_DEBUG) && \
-defined(CONFIG_DEFAULT_USE_ENERGY_AWARE) && defined(CONFIG_SCHED_HMP)
+/*
+ * This downstream driver used the legacy sched_features bit indices and
+ * sysctl_sched_features variable.  They are not present in this scheduler
+ * implementation, so expose the existing unsupported fallback instead of
+ * referencing interfaces that cannot be linked.
+ */
+#if 0
 int sched_scheduler_switch(enum SCHED_LB_TYPE new_sched)
 {
 	unsigned long flags;
