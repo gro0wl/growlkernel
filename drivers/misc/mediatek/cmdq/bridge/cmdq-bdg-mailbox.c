@@ -115,7 +115,7 @@ struct cmdq_task {
 	size_t			cmd_size;
 };
 
-inline u32 spi_read_reg(const u32 addr)
+u32 spi_read_reg(const u32 addr)
 {
 	u32 val = UINT_MAX;
 
@@ -123,17 +123,17 @@ inline u32 spi_read_reg(const u32 addr)
 	return val;
 }
 
-inline s32 spi_write_reg(const u32 addr, const u32 val)
+s32 spi_write_reg(const u32 addr, const u32 val)
 {
 	return spislv_write_register(addr, val);
 }
 
-inline s32 spi_read_mem(const u32 addr, void *val, const s32 len)
+s32 spi_read_mem(const u32 addr, void *val, const s32 len)
 {
 	return spislv_read(addr, val, len);
 }
 
-inline s32 spi_write_mem(const u32 addr, void *val, const s32 len)
+s32 spi_write_mem(const u32 addr, void *val, const s32 len)
 {
 	return spislv_write(addr, val, len);
 }
