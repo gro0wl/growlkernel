@@ -40,7 +40,7 @@ jobs:
           export OBJDUMP=aarch64-linux-gnu-objdump
           export STRIP=aarch64-linux-gnu-strip
           make O=out ARCH=$ARCH $KERNEL_DEFCONFIG
-          make -j"$(nproc)" O=out ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE \
+          make -j"$(nproc)" O=out ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE LD=$LD \
             Image.gz dtbs
       - name: Assemble AnyKernel3 ZIP
         run: |
