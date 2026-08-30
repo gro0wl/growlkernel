@@ -13,6 +13,11 @@ on:
         required: true
         default: selene_defconfig
         type: string
+      ksu_ref:
+        description: backslashxx/KernelSU tag or commit
+        required: true
+        default: v3.3.0
+        type: string
   push:
     branches:
       - main
@@ -27,7 +32,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build selene arm64
+    name: Build selene arm64 with KernelSU
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
@@ -35,6 +40,7 @@ jobs:
       SUBARCH: arm64
       KERNEL_DEFCONFIG: ${{ inputs.defconfig || 'selene_defconfig' }}
       BUILD_VERSION: ${{ inputs.version || 'saisei' }}
+      KSU_REF: ${{ inputs.ksu_ref || 'v3.3.0' }}
       CROSS_COMPILE: aarch64-linux-gnu-
       CROSS_COMPILE_COMPAT: arm-linux-gnueabihf-
 
@@ -53,6 +59,18 @@ jobs:
           sudo ln -sf /usr/bin/arm-linux-gnueabihf-gcc-12 \
             /usr/local/bin/arm-linux-gnueabihf-gcc
 
+      - name: Integrate KernelSU for legacy kernels
+        run: |
+          set -euxo pipefail
+          curl -LSs \
+            "https://raw.githubusercontent.com/backslashxx/KernelSU/master/kernel/setup.sh" \
+            | bash -s "$KSU_REF"
+
+          test -L drivers/kernelsu
+          test -f KernelSU/kernel/Kconfig
+          resolved_ksu="$(git -C KernelSU describe --tags --always)"
+          echo "KSU_VERSION=$resolved_ksu" >> "$GITHUB_ENV"
+
       - name: Configure kernel
         run: |
           set -euxo pipefail
@@ -67,12 +85,23 @@ jobs:
           scripts/config --file out/.config --disable LTO_CLANG
           scripts/config --file out/.config --disable LTO_CLANG_THIN
           scripts/config --file out/.config --set-str MICROTRUST_TEE_VERSION 300
+
+          # backslashxx/KernelSU supports old non-GKI kernels. ARM64 branch-link
+          # hooking is the fork's recommended mode for Linux 4.19 and newer.
+          scripts/config --file out/.config --enable KSU
+          scripts/config --file out/.config --enable KPROBES
+          scripts/config --file out/.config --enable KPROBE_EVENTS
+          scripts/config --file out/.config --enable KSU_HACK_ARM64_BRANCH_LINK
           sed -i 's/cortex-a75\.cortex-a75/cortex-a75/g' out/.config
 
           make O=out ARCH="$ARCH" \
             CC=aarch64-linux-gnu-gcc-12 \
             HOSTCC=gcc \
             olddefconfig </dev/null
+
+          grep -q '^CONFIG_KSU=y' out/.config
+          grep -q '^CONFIG_KPROBES=y' out/.config
+          grep -q '^CONFIG_KSU_HACK_ARM64_BRANCH_LINK=y' out/.config
 
       - name: Build kernel, DTB and DTBO
         run: |
@@ -101,10 +130,11 @@ jobs:
           cp out/arch/arm64/boot/dtbo.img package/dtbo.img
 
           safe_version="$(printf '%s' "$BUILD_VERSION" | tr -cs 'A-Za-z0-9._-' '-')"
+          safe_ksu="$(printf '%s' "$KSU_VERSION" | tr -cs 'A-Za-z0-9._-' '-')"
           timestamp="$(date -u +'%y%m%d-%H%M%S')"
           short_sha="${GITHUB_SHA::9}"
-          zip_name="niigo-yuki-${safe_version}-${timestamp}-${short_sha}.zip"
-          tag="build-${safe_version}-${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}-${timestamp}"
+          zip_name="niigo-yuki-${safe_version}-ksu-${safe_ksu}-${timestamp}-${short_sha}.zip"
+          tag="build-${safe_version}-ksu-${safe_ksu}-${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}-${timestamp}"
 
           (
             cd package
@@ -138,5 +168,5 @@ jobs:
           set -euxo pipefail
           gh release create "$RELEASE_TAG" "$ZIP_NAME" \
             --target "$GITHUB_SHA" \
-            --title "growlkernel ${BUILD_VERSION} build ${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}" \
-            --notes "Automated flashable kernel ZIP for Xiaomi selene/s/eos. Defconfig: ${KERNEL_DEFCONFIG}. Commit: ${GITHUB_SHA}."
+            --title "growlkernel ${BUILD_VERSION} + KernelSU ${KSU_VERSION} build ${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}" \
+            --notes "Automated flashable kernel ZIP for Xiaomi selene/s/eos with backslashxx/KernelSU ${KSU_VERSION}. Defconfig: ${KERNEL_DEFCONFIG}. Commit: ${GITHUB_SHA}."
