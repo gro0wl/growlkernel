@@ -32,6 +32,13 @@ jobs:
         run: |
           export CROSS_COMPILE=aarch64-linux-gnu-
           export LLVM=0
+          export CC=aarch64-linux-gnu-gcc
+          export LD=aarch64-linux-gnu-ld
+          export AR=aarch64-linux-gnu-ar
+          export NM=aarch64-linux-gnu-nm
+          export OBJCOPY=aarch64-linux-gnu-objcopy
+          export OBJDUMP=aarch64-linux-gnu-objdump
+          export STRIP=aarch64-linux-gnu-strip
           make O=out ARCH=$ARCH $KERNEL_DEFCONFIG
           make -j"$(nproc)" O=out ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE \
             Image.gz dtbs
