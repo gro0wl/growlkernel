@@ -113,10 +113,10 @@
 
 #define FOCAL_LOCKDOWN							0
 //#define FTS_TP_DATA_DUMP_EN                     //create procfs /proc/tp_data_dump
-#if FOCAL_LOCKDOWN
-#define TP_LOCKDOWN_INFO "tp_lockdown_info"
 int fts_palm_sensor_cmd(int);
 int fts_palm_sensor_write(int);
+#if FOCAL_LOCKDOWN
+#define TP_LOCKDOWN_INFO "tp_lockdown_info"
 
 int focal_proc_tp_lockdown_info(void);
 void focal_lockdown_proc_deinit(void);
@@ -203,6 +203,8 @@ struct fts_ts_data {
 	struct completion pm_completion;
 	bool pm_suspend;
 #endif
+int fts_palm_sensor_cmd(int);
+int fts_palm_sensor_write(int);
 #if FOCAL_LOCKDOWN
 	char fts_lockdowninfo[17];
 #endif
