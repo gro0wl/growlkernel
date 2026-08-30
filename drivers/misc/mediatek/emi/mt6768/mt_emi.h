@@ -19,6 +19,7 @@
 #define ENABLE_MPU	1
 #define ENABLE_ELM	1
 #define ENABLE_MBW	0
+#define ENABLE_EMI_DEBUG_API
 #define MPU_BYPASS
 #define ISU_VER_CTRL
 /* #define ENABLE_MPU_SLVERR */
@@ -68,4 +69,3 @@
 #include <elm_v1.h>
 
 #endif /* __MT_EMI_H__ */
-
