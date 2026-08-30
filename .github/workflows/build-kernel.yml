@@ -89,8 +89,6 @@ jobs:
           # backslashxx/KernelSU supports old non-GKI kernels. ARM64 branch-link
           # hooking is the fork's recommended mode for Linux 4.19 and newer.
           scripts/config --file out/.config --enable KSU
-          scripts/config --file out/.config --enable KPROBES
-          scripts/config --file out/.config --enable KPROBE_EVENTS
           scripts/config --file out/.config --enable KSU_HACK_ARM64_BRANCH_LINK
           sed -i 's/cortex-a75\.cortex-a75/cortex-a75/g' out/.config
 
@@ -100,7 +98,6 @@ jobs:
             olddefconfig </dev/null
 
           grep -q '^CONFIG_KSU=y' out/.config
-          grep -q '^CONFIG_KPROBES=y' out/.config
           grep -q '^CONFIG_KSU_HACK_ARM64_BRANCH_LINK=y' out/.config
 
       - name: Build kernel, DTB and DTBO
