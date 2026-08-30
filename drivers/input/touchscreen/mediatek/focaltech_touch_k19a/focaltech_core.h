@@ -203,8 +203,6 @@ struct fts_ts_data {
 	struct completion pm_completion;
 	bool pm_suspend;
 #endif
-int fts_palm_sensor_cmd(int);
-int fts_palm_sensor_write(int);
 #if FOCAL_LOCKDOWN
 	char fts_lockdowninfo[17];
 #endif
