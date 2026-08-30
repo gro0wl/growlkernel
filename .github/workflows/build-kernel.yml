@@ -1,0 +1,58 @@
+name: Build flashable kernel ZIP
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.arch }}
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [arm64]
+    env:
+      ARCH: arm64
+      SUBARCH: arm64
+      KERNEL_DEFCONFIG: selene_defconfig
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bc bison flex libssl-dev libelf-dev cpio dwarves \
+            gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu zip unzip python3
+      - name: Build kernel
+        run: |
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          export LLVM=0
+          make O=out ARCH=$ARCH $KERNEL_DEFCONFIG
+          make -j"$(nproc)" O=out ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE \
+            Image.gz dtbs modules
+          make O=out ARCH=$ARCH INSTALL_MOD_PATH="$PWD/modules" modules_install
+      - name: Assemble AnyKernel3 ZIP
+        run: |
+          set -eux
+          rm -rf package
+          cp -a anykernel-template package
+          cp out/arch/arm64/boot/Image.gz-dtb package/Image.gz-dtb 2>/dev/null || \
+            cat out/arch/arm64/boot/Image.gz out/arch/arm64/boot/dts/mediatek/mt6768*.dtb > package/Image.gz-dtb
+          find out/arch/arm64/boot/dts -name '*.dtb' -print0 | xargs -0 cat > package/dtb
+          if [ -f out/arch/arm64/boot/dtbo.img ]; then cp out/arch/arm64/boot/dtbo.img package/dtbo.img; fi
+          if [ -d modules/lib/modules ]; then cp -a modules/lib/modules package/modules/system/lib/; fi
+          printf 'growlkernel selene arm64\n' > package/banner
+          (cd package && zip -r9 "../growlkernel-${{ matrix.arch }}-${GITHUB_RUN_NUMBER}.zip" .)
+      - name: Create GitHub release (one release per architecture)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${{ matrix.arch }}-${GITHUB_RUN_NUMBER}"
+          gh release create "$tag" "growlkernel-${{ matrix.arch }}-${GITHUB_RUN_NUMBER}.zip" \
+            --title "growlkernel ${{ matrix.arch }} build ${GITHUB_RUN_NUMBER}" \
+            --notes "Automated flashable ZIP for ${{ matrix.arch }} (commit ${GITHUB_SHA})."
