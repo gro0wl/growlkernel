@@ -67,7 +67,6 @@ jobs:
           scripts/config --file out/.config --disable LTO_CLANG
           scripts/config --file out/.config --disable LTO_CLANG_THIN
           scripts/config --file out/.config --set-str MICROTRUST_TEE_VERSION 300
-          scripts/config --file out/.config --disable SCHED_DEBUG
           sed -i 's/cortex-a75\.cortex-a75/cortex-a75/g' out/.config
 
           make O=out ARCH="$ARCH" \
