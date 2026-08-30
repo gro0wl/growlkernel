@@ -27,11 +27,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y bc bison flex libssl-dev libelf-dev cpio dwarves \
-            gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu zip unzip python3
+            gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu clang lld zip unzip python3
       - name: Build kernel
         run: |
           export CROSS_COMPILE=aarch64-linux-gnu-
-          export LLVM=0
+          export LLVM=1
+          export LLVM_IAS=1
           export CC=aarch64-linux-gnu-gcc
           export LD=aarch64-linux-gnu-ld
           export AR=aarch64-linux-gnu-ar
@@ -40,7 +41,7 @@ jobs:
           export OBJDUMP=aarch64-linux-gnu-objdump
           export STRIP=aarch64-linux-gnu-strip
           make O=out ARCH=$ARCH $KERNEL_DEFCONFIG
-          make -j"$(nproc)" O=out ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE LD=$LD \
+          make -j"$(nproc)" O=out ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE LLVM=1 LLVM_IAS=1 \
             Image.gz dtbs
       - name: Assemble AnyKernel3 ZIP
         run: |
