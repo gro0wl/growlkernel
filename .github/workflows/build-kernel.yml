@@ -43,6 +43,7 @@ jobs:
           scripts/kconfig/merge_config.sh -m -O out out/.config arch/arm64/configs/$KERNEL_DEFCONFIG
           sed -i "s/^CONFIG_CC_STACKPROTECTOR_STRONG=y/# CONFIG_CC_STACKPROTECTOR_STRONG is not set/" out/.config
           sed -i -e "s/^CONFIG_LTO_CLANG=y/# CONFIG_LTO_CLANG is not set/" -e "s/^CONFIG_LTO_CLANG_THIN=y/# CONFIG_LTO_CLANG_THIN is not set/" out/.config
+          scripts/config --file out/.config --set-str MICROTRUST_TEE_VERSION 300
           sed -i "s/cortex-a75\.cortex-a75/cortex-a75/g" out/.config
           yes "" | make O=out ARCH=$ARCH olddefconfig
           make -j"$(nproc)" O=out ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE LD=$LD KCFLAGS="-Wno-error=misleading-indentation -Wno-error=sizeof-pointer-memaccess" \
