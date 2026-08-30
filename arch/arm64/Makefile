@@ -97,7 +97,7 @@ endif
 
 #ifdef CONFIG_MACH_MT6768
 ifeq ($(cc-name),gcc)
-KBUILD_CFLAGS   += -mcpu=cortex-a75.cortex-a55 -mtune=cortex-a75.cortex-a55
+KBUILD_CFLAGS   += -mcpu=cortex-a75 -mtune=cortex-a75
 endif
 ifeq ($(cc-name),clang)
 KBUILD_CFLAGS   += -mcpu=cortex-a55 -mtune=cortex-a55

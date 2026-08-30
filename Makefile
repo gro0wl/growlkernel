@@ -736,8 +736,8 @@ endif
 # Tell compiler to tune the performance of the code for a specified
 # target processor
 ifeq ($(cc-name),gcc)
-KBUILD_CFLAGS += -mcpu=cortex-a75.cortex-a75
-KBUILD_AFLAGS += -mcpu=cortex-a75.cortex-a75
+KBUILD_CFLAGS += -mcpu=cortex-a75
+KBUILD_AFLAGS += -mcpu=cortex-a75
 else ifeq ($(cc-name),clang)
 KBUILD_CFLAGS += -O3
 KBUILD_CFLAGS += -mcpu=cortex-a75
