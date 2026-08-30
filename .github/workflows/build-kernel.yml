@@ -50,6 +50,8 @@ jobs:
             gcc-12-aarch64-linux-gnu gcc-12-arm-linux-gnueabihf \
             binutils-aarch64-linux-gnu binutils-arm-linux-gnueabihf \
             device-tree-compiler zip unzip python3
+          sudo ln -sf /usr/bin/arm-linux-gnueabihf-gcc-12 \
+            /usr/local/bin/arm-linux-gnueabihf-gcc
 
       - name: Configure kernel
         run: |
